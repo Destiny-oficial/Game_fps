@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pase de Niveles</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+
+    .level {
+      background-color: #333;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+
+    .level p {
+      margin: 0;
+    }
+
+    .button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Pase de Niveles</h2>
+    <div id="levelsList">
+      <!-- Niveles disponibles se cargarán aquí -->
+    </div>
+    <button class="button" onclick="window.location.href='lobby.html'">Volver al Lobby</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const userId = "user_id_1"; // Cambia esto por el UID del jugador actual
+    const levelRef = db.ref('users/' + userId + '/levels');
+
+    levelRef.once('value', (snapshot) => {
+      const levels = snapshot.val();
+      const levelsList = document.getElementById('levelsList');
+
+      if (levels) {
+        Object.keys(levels).forEach(levelKey => {
+          const level = levels[levelKey];
+          const levelElement = document.createElement('div');
+          levelElement.classList.add('level');
+          levelElement.innerHTML = `
+            <p>Nivel: ${level.name}</p>
+            <p>Requiere: ${level.requirements}</p>
+            <button class="button">Desbloquear</button>
+          `;
+          levelsList.appendChild(levelElement);
+        });
+      } else {
+        levelsList.innerHTML = "<p>No tienes niveles desbloqueados.</p>";
+      }
+    });
+  </script>
+
+</body>
+</html>

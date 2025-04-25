@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FPS Game Login</title>
+  <style>
+    body {
+  background: url('https://i.ibb.co/LXDD3BCK/20250424-210323606.png') no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+    .login-box {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    input, button {
+      width: 90%;
+      margin: 8px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    hr {
+      margin: 15px 0;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Inicia Sesión en FPS</h2>
+    <input id="email" type="email" placeholder="Correo">
+    <input id="password" type="password" placeholder="Contraseña">
+    <button id="btnLoginEmail">Iniciar con Correo</button>
+    <button id="btnRegisterEmail">Registrarse con Correo</button>
+    <hr>
+    <button id="btnGoogle">Iniciar con Google</button>
+    <button id="btnFacebook">Iniciar con Facebook</button>
+    <button id="btnGuest">Entrar como Invitado</button>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // Configura tu proyecto aquí:
+    const firebaseConfig = {
+    apiKey: "AIzaSyD8_eJrmjXIm8-IQXtusuu65iknO9Y-ypM",
+    authDomain: "fps-game-dee3c.firebaseapp.com",
+    projectId: "fps-game-dee3c",
+    storageBucket: "fps-game-dee3c.firebasestorage.app",
+    messagingSenderId: "301239918953",
+    appId: "1:301239918953:web:575b40636e89bda4f91df8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function goToTutorial(user) {
+      alert("Bienvenido, " + (user.displayName || "Jugador") + ". Irás al tutorial.");
+      // Aquí puedes redirigir o mostrar el tutorial.
+    }
+
+    function saveUser(user) {
+      const ref = db.ref("users/" + user.uid);
+      ref.once("value").then(snapshot => {
+        if (!snapshot.exists()) {
+          ref.set({
+            email: user.email || null,
+            displayName: user.displayName || "Jugador",
+            createdAt: Date.now(),
+            xp: 0,
+            coins: 0
+          });
+        }
+      });
+    }
+
+    document.getElementById("btnLoginEmail").addEventListener("click", () => {
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(res => goToTutorial(res.user))
+        .catch(err => console.log("Error: " + err.message));
+    });
+
+    document.getElementById("btnRegisterEmail").addEventListener("click", () => {
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(res => {
+          saveUser(res.user);
+          goToTutorial(res.user);
+        })
+        .catch(err => console.log("Error: " + err.message));
+    });
+
+    document.getElementById("btnGoogle").addEventListener("click", () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(res => {
+          saveUser(res.user);
+          goToTutorial(res.user);
+        })
+        .catch(err => console.log("Error: " + err.message));
+    });
+
+    document.getElementById("btnFacebook").addEventListener("click", () => {
+      const provider = new firebase.auth.FacebookAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(res => {
+          saveUser(res.user);
+          goToTutorial(res.user);
+        })
+        .catch(err => console.log("Error: " + err.message));
+    });
+
+    document.getElementById("btnGuest").addEventListener("click", () => {
+      auth.signInAnonymously()
+        .then(res => {
+          const uid = res.user.uid;
+          db.ref("users/" + uid).set({
+            displayName: "Invitado_" + Math.floor(Math.random() * 9999),
+            xp: 0,
+            coins: 0
+          });
+          goToTutorial(res.user);
+        })
+        .catch(err => console.log("Error: " + err.message));
+    });
+    window.location.href = "prueba.html";
+  </script>
+</body>
+</html>

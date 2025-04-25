@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lobby FPS</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #1a1a1a;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+    }
+
+    .header button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .header button:hover {
+      background-color: #0056b3;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .profile {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .profile img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat h3 {
+      margin: 5px 0;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+    }
+
+    .buttons button {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .buttons button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <button id="btnLogout">Cerrar sesión</button>
+    <button id="btnStartGame">Iniciar juego</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Profile Section -->
+    <div class="profile">
+      <img id="avatar" src="default_avatar.png" alt="Avatar">
+      <h2 id="username">Jugador</h2>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats">
+      <div class="stat">
+        <h3 id="level">Nivel: 1</h3>
+      </div>
+      <div class="stat">
+        <h3 id="coins">Monedas: 0</h3>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <button id="btnInventory">Inventario</button>
+      <button id="btnLevelPass">Pase de niveles</button>
+      <button id="btnStore">Tienda</button>
+      <button id="btnSettings">Configuración</button>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // Configura Firebase
+    const firebaseConfig = {
+    apiKey: "AIzaSyD8_eJrmjXIm8-IQXtusuu65iknO9Y-ypM",
+    authDomain: "fps-game-dee3c.firebaseapp.com",
+    projectId: "fps-game-dee3c",
+    storageBucket: "fps-game-dee3c.firebasestorage.app",
+    messagingSenderId: "301239918953",
+    appId: "1:301239918953:web:575b40636e89bda4f91df8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let user = null;
+
+    // Verificar si el usuario está autenticado
+    auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        user = firebaseUser;
+        loadUserData(user.uid);
+      } else {
+        window.location.href = "login.html"; // Redirigir al login si no está autenticado
+      }
+    });
+
+    // Cargar datos del usuario
+    function loadUserData(uid) {
+      db.ref('users/' + uid).once('value').then(snapshot => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          document.getElementById("username").textContent = data.displayName;
+          document.getElementById("level").textContent = "Nivel: " + data.level;
+          document.getElementById("coins").textContent = "Monedas: " + data.coins;
+          document.getElementById("avatar").src = data.avatar || "default_avatar.png";
+        }
+      });
+    }
+
+    // Cerrar sesión
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      auth.signOut().then(() => {
+        window.location.href = "login.html"; // Redirigir al login
+      });
+    });
+
+    // Redirigir a la tienda, inventario, etc.
+    document.getElementById("btnInventory").addEventListener("click", () => {
+      window.location.href = "inventario.html"; // Cambiar por la página de inventario
+    });
+
+    document.getElementById("btnLevelPass").addEventListener("click", () => {
+      window.location.href = "pase-niveles.html"; // Cambiar por la página de pase de niveles
+    });
+
+    document.getElementById("btnStore").addEventListener("click", () => {
+      window.location.href = "tienda.html"; // Cambiar por la página de tienda
+    });
+
+    document.getElementById("btnSettings").addEventListener("click", () => {
+      window.location.href = "settings.html"; // Cambiar por la página de configuración
+    });
+
+    // Función para actualizar el avatar y nivel en la base de datos
+    function updateUserData(uid, newAvatar, newLevel) {
+      db.ref('users/' + uid).update({
+        avatar: newAvatar,
+        level: newLevel
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      margin: 15px 0;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+    }
+
+    .item img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .item-name {
+      display: flex;
+      align-items: center;
+    }
+
+    .item-name span {
+      margin-left: 10px;
+    }
+
+    .button {
+      background-color: #007bff;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Inventario</h2>
+    <div id="inventoryList">
+      <!-- Items del inventario se cargarán aquí -->
+    </div>
+    <button class="button" onclick="window.location.href='lobby.html'">Volver al Lobby</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const userId = "user_id_1"; // Cambia esto por el UID del jugador actual
+    const inventoryRef = db.ref('users/' + userId + '/inventory');
+
+    inventoryRef.once('value', (snapshot) => {
+      const items = snapshot.val();
+      const inventoryList = document.getElementById('inventoryList');
+
+      if (items) {
+        Object.keys(items).forEach(itemKey => {
+          const item = items[itemKey];
+          const itemElement = document.createElement('div');
+          itemElement.classList.add('item');
+          itemElement.innerHTML = `
+            <div class="item-name">
+              <img src="${item.image}" alt="${item.name}">
+              <span>${item.name}</span>
+            </div>
+            <button class="button">Usar</button>
+          `;
+          inventoryList.appendChild(itemElement);
+        });
+      } else {
+        inventoryList.innerHTML = "<p>No tienes elementos en tu inventario.</p>";
+      }
+    });
+  </script>
+
+</body>
+</html>
