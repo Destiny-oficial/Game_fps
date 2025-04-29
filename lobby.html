@@ -1,211 +1,250 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lobby FPS</title>
+  <title>Prueba FPS</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #1a1a1a;
-      color: white;
+    html, body {
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       overflow: hidden;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      padding: 10px;
-      background-color: #333;
+      background: url('prueba.png') no-repeat center center fixed;
+      background-size: cover;
       color: white;
+      font-family: sans-serif;
+      touch-action: none;
     }
 
-    .header button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 5px;
+    #crosshair {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin-top: -10px;
+      margin-left: -10px;
+      pointer-events: none;
+      z-index: 2;
     }
 
-    .header button:hover {
-      background-color: #0056b3;
+    #crosshair::before, #crosshair::after {
+      content: '';
+      position: absolute;
+      background: white;
     }
 
-    .content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 20px;
+    #crosshair::before {
+      left: 50%;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+
+    #crosshair::after {
+      top: 50%;
+      left: 0;
+      height: 2px;
       width: 100%;
-      max-width: 800px;
+      transform: translateY(-50%);
     }
 
-    .profile {
-      text-align: center;
-      margin-bottom: 30px;
+    #gun {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      width: 200px;
+      transform: translateX(-50%);
+      z-index: 1;
     }
 
-    .profile img {
+    #enemy {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
       width: 100px;
-      height: 100px;
-      border-radius: 50%;
     }
 
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      margin-bottom: 30px;
+    #enemyHealth {
+      position: fixed;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 10px;
+      background: red;
     }
 
-    .stat {
-      text-align: center;
-    }
-
-    .stat h3 {
-      margin: 5px 0;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-    }
-
-    .buttons button {
-      background-color: #28a745;
+    #shootBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      font-size: 16px;
+      background: #007bff;
       color: white;
-      padding: 10px 20px;
       border: none;
-      cursor: pointer;
-      border-radius: 5px;
+      border-radius: 10px;
+      z-index: 2;
+      display: none;
     }
 
-    .buttons button:hover {
-      background-color: #218838;
+    #message {
+      position: fixed;
+      top: 10%;
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      color: lime;
+      display: none;
+      z-index: 3;
+    }
+
+    #bullet {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: yellow;
+      border-radius: 50%;
+      display: none;
+    }
+
+    #gun.recoil {
+      transform: translateX(-50%) translateY(-5px);
+      transition: transform 0.1s ease;
+    }
+
+    @media (pointer: coarse) {
+      #shootBtn {
+        display: block;
+      }
     }
   </style>
 </head>
 <body>
-
-  <!-- Header -->
-  <div class="header">
-    <button id="btnLogout">Cerrar sesión</button>
-    <button id="btnStartGame">Iniciar juego</button>
-  </div>
-
-  <!-- Content -->
-  <div class="content">
-    <!-- Profile Section -->
-    <div class="profile">
-      <img id="avatar" src="default_avatar.png" alt="Avatar">
-      <h2 id="username">Jugador</h2>
-    </div>
-
-    <!-- Stats Section -->
-    <div class="stats">
-      <div class="stat">
-        <h3 id="level">Nivel: 1</h3>
-      </div>
-      <div class="stat">
-        <h3 id="coins">Monedas: 0</h3>
-      </div>
-    </div>
-
-    <!-- Buttons -->
-    <div class="buttons">
-      <button id="btnInventory">Inventario</button>
-      <button id="btnLevelPass">Pase de niveles</button>
-      <button id="btnStore">Tienda</button>
-      <button id="btnSettings">Configuración</button>
-    </div>
-  </div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+  <div id="crosshair"></div>
+  <div id="enemyHealth"></div>
+  <img id="enemy" src="enemy.png">
+  <img id="gun" src="arma.png">
+  <button id="shootBtn">Disparar</button>
+  <div id="message">¡Prueba completada!</div>
+  <audio id="soundDisparo" src="disparo.mp3"></audio> 
+  <div id="bullet"></div>
   <script>
-    // Configura Firebase
-    const firebaseConfig = {
-    apiKey: "AIzaSyD8_eJrmjXIm8-IQXtusuu65iknO9Y-ypM",
-    authDomain: "fps-game-dee3c.firebaseapp.com",
-    projectId: "fps-game-dee3c",
-    storageBucket: "fps-game-dee3c.firebasestorage.app",
-    messagingSenderId: "301239918953",
-    appId: "1:301239918953:web:575b40636e89bda4f91df8"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+    let enemyHP = 5;
+    const enemy = document.getElementById("enemy");
+    const healthBar = document.getElementById("enemyHealth");
+    const message = document.getElementById("message");
+    const bullet = document.getElementById("bullet");
 
-    let user = null;
+    const niveles = [
+      { enemigos: 1, vidas: 5 },
+      { enemigos: 2, vidas: 3 },
+      { enemigos: 3, vidas: 1 }
+    ];
 
-    // Verificar si el usuario está autenticado
-    auth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
-        user = firebaseUser;
-        loadUserData(user.uid);
-      } else {
-        window.location.href = "login.html"; // Redirigir al login si no está autenticado
-      }
-    });
+    let nivelActual = 0;
+    let vidas = niveles[nivelActual].vidas;
 
-    // Cargar datos del usuario
-    function loadUserData(uid) {
-      db.ref('users/' + uid).once('value').then(snapshot => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          document.getElementById("username").textContent = data.displayName;
-          document.getElementById("level").textContent = "Nivel: " + data.level;
-          document.getElementById("coins").textContent = "Monedas: " + data.coins;
-          document.getElementById("avatar").src = data.avatar || "default_avatar.png";
+    function shoot() {
+      if (enemyHP > 0) {
+        enemyHP--;
+        healthBar.style.width = (enemyHP * 24) + "px";
+
+        if (enemyHP === 0) {
+          enemy.style.display = "none";
+          healthBar.style.display = "none";
+          message.style.display = "block";
+
+          nivelActual++;
+          if (nivelActual < niveles.length) {
+            iniciarJuego();
+          } else {
+            message.textContent = "¡Juego Completado!";
+            window.location.href = "lobby.html";
+          }
         }
-      });
+
+        // Mostrar bala
+        bullet.style.display = "block";
+        bullet.style.left = (window.innerWidth / 2) + "px";
+        bullet.style.top = (window.innerHeight / 2) + "px";
+        bullet.style.transition = "left 0.5s ease";
+
+        // Mover bala hacia la derecha (simulación)
+        setTimeout(() => {
+          bullet.style.left = (window.innerWidth + 50) + "px";
+          setTimeout(() => {
+            bullet.style.display = "none";
+            checkCollision(); 
+          }, 500); 
+        }, 100);
+
+        // Reproducir sonido
+        const sonidoDisparo = document.getElementById("soundDisparo");
+        sonidoDisparo.play();
+
+        // Animar arma
+        const gun = document.getElementById("gun");
+        gun.classList.add("recoil");
+        setTimeout(() => {
+          gun.classList.remove("recoil");
+        }, 100);
+      }
     }
 
-    // Cerrar sesión
-    document.getElementById("btnLogout").addEventListener("click", () => {
-      auth.signOut().then(() => {
-        window.location.href = "login.html"; // Redirigir al login
-      });
-    });
-
-    // Redirigir a la tienda, inventario, etc.
-    document.getElementById("btnInventory").addEventListener("click", () => {
-      window.location.href = "inventario.html"; // Cambiar por la página de inventario
-    });
-
-    document.getElementById("btnLevelPass").addEventListener("click", () => {
-      window.location.href = "pase-niveles.html"; // Cambiar por la página de pase de niveles
-    });
-
-    document.getElementById("btnStore").addEventListener("click", () => {
-      window.location.href = "tienda.html"; // Cambiar por la página de tienda
-    });
-
-    document.getElementById("btnSettings").addEventListener("click", () => {
-      window.location.href = "settings.html"; // Cambiar por la página de configuración
-    });
-
-    // Función para actualizar el avatar y nivel en la base de datos
-    function updateUserData(uid, newAvatar, newLevel) {
-      db.ref('users/' + uid).update({
-        avatar: newAvatar,
-        level: newLevel
-      });
+    function moveEnemy() {
+      const enemy = document.getElementById("enemy");
+      const maxX = window.innerWidth - enemy.width;
+      const maxY = window.innerHeight - enemy.height;
+      enemy.style.left = Math.random() * maxX + "px";
+      enemy.style.top = Math.random() * maxY + "px";
     }
+
+    function checkCollision() {
+      const enemy = document.getElementById("enemy");
+      const bullet = document.getElementById("bullet");
+
+      const enemyRect = enemy.getBoundingClientRect();
+      const bulletRect = bullet.getBoundingClientRect();
+
+      if (enemyRect.left < bulletRect.right &&
+          enemyRect.right > bulletRect.left &&
+          enemyRect.top < bulletRect.bottom &&
+          enemyRect.bottom > bulletRect.top) {
+        // Colisión detectada
+        enemyHP--;
+        healthBar.style.width = (enemyHP * 24) + "px";
+      }
+    }
+
+    function iniciarJuego() {
+      enemyHP = niveles[nivelActual].vidas;
+      healthBar.style.width = (enemyHP * 24) + "px";
+      enemy.style.display = "block";
+      healthBar.style.display = "block";
+      message.style.display = "none";
+    }
+
+    document.addEventListener("click", shoot);
+    document.getElementById("shootBtn").addEventListener("click", shoot);
+
+    // Movimiento básico (WASD)
+    let keys = {};
+    document.addEventListener("keydown", e => keys[e.key] = true);
+    document.addEventListener("keyup", e => keys[e.key] = false);
+
+    setInterval(() => {
+      if (keys['w'] || keys['W']) window.scrollBy(0, -5);
+      if (keys['s'] || keys['S']) window.scrollBy(0, 5);
+      if (keys['a'] || keys['A']) window.scrollBy(-5, 0);
+      if (keys['d'] || keys['D']) window.scrollBy(5, 0);
+    }, 16);
+
+    setInterval(moveEnemy, 1000); 
+
+    window.onload = iniciarJuego;
   </script>
 </body>
 </html>
