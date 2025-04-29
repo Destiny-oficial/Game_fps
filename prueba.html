@@ -120,6 +120,21 @@
         display: block;
       }
     }
+
+    @keyframes fadeScale {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    #message.animated {
+      animation: fadeScale 1s ease forwards;
+    }
   </style>
 </head>
 <body>
@@ -131,21 +146,13 @@
   <div id="message">¡Prueba completada!</div>
   <audio id="soundDisparo" src="disparo.mp3"></audio> 
   <div id="bullet"></div>
+
   <script>
     let enemyHP = 5;
     const enemy = document.getElementById("enemy");
     const healthBar = document.getElementById("enemyHealth");
     const message = document.getElementById("message");
     const bullet = document.getElementById("bullet");
-
-    const niveles = [
-      { enemigos: 1, vidas: 5 },
-      { enemigos: 2, vidas: 3 },
-      { enemigos: 3, vidas: 1 }
-    ];
-
-    let nivelActual = 0;
-    let vidas = niveles[nivelActual].vidas;
 
     function shoot() {
       if (enemyHP > 0) {
@@ -155,39 +162,29 @@
         if (enemyHP === 0) {
           enemy.style.display = "none";
           healthBar.style.display = "none";
+          message.textContent = "¡Prueba completada!";
+          message.classList.add("animated");
           message.style.display = "block";
 
-          nivelActual++;
-if (nivelActual < niveles.length) {
-  setTimeout(iniciarJuego, 1000); // Pequeña pausa opcional
-} else {
-  message.textContent = "¡Juego Completado!";
-  setTimeout(() => {
-    window.location.href = "lobby.html";
-  }, 1500); // Esperar un momento para mostrar el mensaje antes de redirigir
-}
+          setTimeout(() => {
+            window.location.href = "lobby.html";
+          }, 3000);
         }
 
-        // Mostrar bala
         bullet.style.display = "block";
         bullet.style.left = (window.innerWidth / 2) + "px";
         bullet.style.top = (window.innerHeight / 2) + "px";
         bullet.style.transition = "left 0.5s ease";
 
-        // Mover bala hacia la derecha (simulación)
         setTimeout(() => {
           bullet.style.left = (window.innerWidth + 50) + "px";
           setTimeout(() => {
             bullet.style.display = "none";
-            checkCollision(); 
           }, 500); 
         }, 100);
 
-        // Reproducir sonido
-        const sonidoDisparo = document.getElementById("soundDisparo");
-        sonidoDisparo.play();
+        document.getElementById("soundDisparo").play();
 
-        // Animar arma
         const gun = document.getElementById("gun");
         gun.classList.add("recoil");
         setTimeout(() => {
@@ -197,32 +194,14 @@ if (nivelActual < niveles.length) {
     }
 
     function moveEnemy() {
-      const enemy = document.getElementById("enemy");
       const maxX = window.innerWidth - enemy.width;
       const maxY = window.innerHeight - enemy.height;
       enemy.style.left = Math.random() * maxX + "px";
       enemy.style.top = Math.random() * maxY + "px";
     }
 
-    function checkCollision() {
-      const enemy = document.getElementById("enemy");
-      const bullet = document.getElementById("bullet");
-
-      const enemyRect = enemy.getBoundingClientRect();
-      const bulletRect = bullet.getBoundingClientRect();
-
-      if (enemyRect.left < bulletRect.right &&
-          enemyRect.right > bulletRect.left &&
-          enemyRect.top < bulletRect.bottom &&
-          enemyRect.bottom > bulletRect.top) {
-        // Colisión detectada
-        enemyHP--;
-        healthBar.style.width = (enemyHP * 24) + "px";
-      }
-    }
-
     function iniciarJuego() {
-      enemyHP = niveles[nivelActual].vidas;
+      enemyHP = 5;
       healthBar.style.width = (enemyHP * 24) + "px";
       enemy.style.display = "block";
       healthBar.style.display = "block";
@@ -232,7 +211,6 @@ if (nivelActual < niveles.length) {
     document.addEventListener("click", shoot);
     document.getElementById("shootBtn").addEventListener("click", shoot);
 
-    // Movimiento básico (WASD)
     let keys = {};
     document.addEventListener("keydown", e => keys[e.key] = true);
     document.addEventListener("keyup", e => keys[e.key] = false);
@@ -244,7 +222,9 @@ if (nivelActual < niveles.length) {
       if (keys['d'] || keys['D']) window.scrollBy(5, 0);
     }, 16);
 
-    setInterval(moveEnemy, 1000); 
+    setInterval(moveEnemy, 1000);
+
+    iniciarJuego();
   </script>
 </body>
 </html>
