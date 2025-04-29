@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil de sakura_973</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #222;
+      color: #eee;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .perfil-con-personaje {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 80%;
+    }
+    .section {
+      background-color: #333;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+      width: 100%;
+      text-align: center;
+    }
+    .section h2 {
+      color: #00ff00;
+    }
+    img {
+      max-width: 150px;
+      max-height: 150px;
+      border-radius: 5px;
+    }
+    .personaje {
+      margin-left: 20px;
+    }
+    .personaje img {
+      max-width: 200px;
+    }
+  </style>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="perfil-con-personaje">
+      <div class="section">
+        <h2>Información Personal</h2>
+        <img src="https://i.ibb.co/HpXTJq9s/IMG-20250428-214050-132.jpg" alt="Imagen de perfil" />
+        <p>Nombre de usuario: <span id="username">Cargando...</span></p>
+        <p>ID: <span id="userId">Cargando...</span></p>
+        <p>Nivel: <span id="nivel">Cargando...</span></p>
+        <p id="descripcion">Cargando descripción...</p>
+      </div>
+      <div class="personaje">
+        <h3>Personaje Equipado</h3>
+        <img id="imgPersonaje" src="enemy.png" alt="Personaje equipado" />
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Estadísticas del Juego</h2>
+      <h3>Todos contra todos</h3>
+      <p>Rango actual: Leyenda</p>
+      <p>Mejor rango: Leyenda</p>
+      <h3>Batalla de escuadrones</h3>
+      <p>Rango actual: Platino III</p>
+      <p>Mejor rango: Diamante I</p>
+      <p>Eliminaciones: 14</p>
+      <p>Revividos: 29</p>
+      <p>Partidas ganadas: 73</p>
+    </div>
+
+    <div class="section">
+      <h2>Armas Favoritas</h2>
+      <p>M4A1</p>
+      <p>6176</p>
+      <img src="armQa.png" alt="Imagen del arma" />
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD8_eJrmjXIm8-IQXtusuu65iknO9Y-ypM",
+      authDomain: "fps-game-dee3c.firebaseapp.com",
+      projectId: "fps-game-dee3c",
+      storageBucket: "fps-game-dee3c.appspot.com",
+      messagingSenderId: "301239918953",
+      appId: "1:301239918953:web:575b40636e89bda4f91df8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const userId = user.uid;
+        document.getElementById("userId").textContent = userId;
+
+        try {
+          const doc = await db.collection("usuarios").doc(userId).get();
+          if (doc.exists) {
+            const data = doc.data();
+            document.getElementById("username").textContent = data.username || "Desconocido";
+            document.getElementById("nivel").textContent = data.nivel || "0";
+            document.getElementById("descripcion").textContent = data.descripcion || "Sin descripción.";
+            if (data.personajeEquipado) {
+              document.getElementById("imgPersonaje").src = data.personajeEquipado;
+            }
+          } else {
+            document.getElementById("descripcion").textContent = "No se encontró el perfil.";
+          }
+        } catch (err) {
+          console.error("Error obteniendo el perfil:", err);
+        }
+      } else {
+        document.getElementById("userId").textContent = "No autenticado";
+      }
+    });
+  </script>
+</body>
+</html>

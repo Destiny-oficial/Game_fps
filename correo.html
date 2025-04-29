@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Correo - FPS Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #222;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .mailList {
+      width: 30%;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .mailItem {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+    }
+    .mailItem img {
+      width: 30px;
+      height: 30px;
+      margin-right: 10px;
+    }
+    .mailDetails {
+      flex: 1;
+    }
+    .mailSubject {
+      font-weight: bold;
+    }
+    .mailSender {
+      font-size: smaller;
+      color: #888;
+    }
+    .mailContent {
+      width: 70%;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    .mailPreview {
+      margin-bottom: 20px;
+    }
+    .buttons {
+      margin-top: 20px;
+      text-align: center;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .selectedMail {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .mailCategory {
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+      border-bottom: 1px solid #444;
+    }
+  </style>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="mailList" id="mailList"></div>
+    <div class="mailContent" id="mailContent">
+      <div class="mailPreview" id="mailPreview">
+        <h3>Selecciona un correo para verlo</h3>
+      </div>
+      <div class="buttons">
+        <button>Reclamar seleccionados</button>
+        <button>Reclamar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD8_eJrmjXIm8-IQXtusuu65iknO9Y-ypM",
+      authDomain: "fps-game-dee3c.firebaseapp.com",
+      projectId: "fps-game-dee3c",
+      storageBucket: "fps-game-dee3c.appspot.com",
+      messagingSenderId: "301239918953",
+      appId: "1:301239918953:web:575b40636e89bda4f91df8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const mailListEl = document.getElementById("mailList");
+    const mailPreviewEl = document.getElementById("mailPreview");
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        console.log("Autenticado:", user.email);
+        cargarCorreos(user.uid);
+      } else {
+        console.log("No autenticado");
+        // window.location.href = "login.html"; // Opcional
+      }
+    });
+
+    function cargarCorreos(uid) {
+      db.collection("correos").orderBy("fecha", "desc").onSnapshot(snapshot => {
+        mailListEl.innerHTML = "";
+
+        snapshot.forEach(doc => {
+          const correo = doc.data();
+          const destinatario = correo.destinatarioId;
+
+          // Mostrar solo si es global o dirigido al usuario actual
+          if (!destinatario || destinatario === uid) {
+            const categoria = correo.categoria || "General";
+
+            let catEl = mailListEl.querySelector(`.mailCategory[data-cat="${categoria}"]`);
+            if (!catEl) {
+              catEl = document.createElement("div");
+              catEl.className = "mailCategory";
+              catEl.dataset.cat = categoria;
+              catEl.textContent = categoria;
+              mailListEl.appendChild(catEl);
+            }
+
+            const item = document.createElement("div");
+            item.className = "mailItem";
+            item.innerHTML = `
+              <img src="icono_sistema.png" alt="${categoria}">
+              <div class="mailDetails">
+                <div class="mailSubject">${correo.asunto}</div>
+                <div class="mailSender">${correo.remitente}</div>
+              </div>
+            `;
+
+            item.addEventListener("click", () => {
+              mailPreviewEl.innerHTML = `
+                <h3>${correo.asunto}</h3>
+                <p><strong>${correo.remitente}</strong></p>
+                <p>${correo.fecha?.toDate ? new Date(correo.fecha.toDate()).toLocaleString() : ""}</p>
+                <p>${correo.mensaje}</p>
+              `;
+            });
+
+            mailListEl.appendChild(item);
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

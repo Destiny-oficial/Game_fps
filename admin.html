@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enviar Correo con Recompensa</title>
+  <style>
+    body {
+      background-color: #1f1f1f;
+      color: white;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: #2c2c2c;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <h2>Enviar correo con recompensa</h2>
+
+  <form id="correoForm">
+    <input type="text" id="asunto" placeholder="Asunto" required />
+    <input type="text" id="remitente" placeholder="Remitente (ej: Garena Delta)" required />
+    <select id="categoria">
+      <option value="Sistema">Sistema</option>
+      <option value="Avisos">Avisos</option>
+      <option value="Subasta">Subasta</option>
+      <option value="Seguridad">Seguridad</option>
+      <option value="General">General</option>
+    </select>
+    <textarea id="mensaje" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
+
+    <h4>Recompensas (opcional)</h4>
+    <input type="number" id="monedas" placeholder="Monedas (opcional)" />
+    <input type="number" id="diamantes" placeholder="Diamantes (opcional)" />
+    <input type="text" id="item" placeholder="Ítem especial (opcional)" />
+
+    <h4>Enviar solo a un usuario (opcional)</h4>
+    <input type="text" id="destinatarioId" placeholder="ID del usuario (opcional)" />
+
+    <button type="submit">Enviar correo</button>
+  </form>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD8_eJrmjXIm8-IQXtusuu65iknO9Y-ypM",
+      authDomain: "fps-game-dee3c.firebaseapp.com",
+      projectId: "fps-game-dee3c",
+      storageBucket: "fps-game-dee3c.appspot.com",
+      messagingSenderId: "301239918953",
+      appId: "1:301239918953:web:575b40636e89bda4f91df8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const form = document.getElementById("correoForm");
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Debes iniciar sesión para enviar correos.");
+        form.style.display = "none";
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const asunto = document.getElementById("asunto").value.trim();
+      const remitente = document.getElementById("remitente").value.trim();
+      const mensaje = document.getElementById("mensaje").value.trim();
+      const categoria = document.getElementById("categoria").value;
+      const destinatarioId = document.getElementById("destinatarioId").value.trim();
+
+      const monedas = parseInt(document.getElementById("monedas").value) || 0;
+      const diamantes = parseInt(document.getElementById("diamantes").value) || 0;
+      const item = document.getElementById("item").value.trim();
+
+      const recompensa = {};
+      if (monedas > 0) recompensa.monedas = monedas;
+      if (diamantes > 0) recompensa.diamantes = diamantes;
+      if (item) recompensa.item = item;
+
+      const correoData = {
+        asunto,
+        remitente,
+        mensaje,
+        categoria,
+        fecha: firebase.firestore.FieldValue.serverTimestamp(),
+        recompensa,
+      };
+
+      if (destinatarioId) {
+        correoData.destinatarioId = destinatarioId;
+      }
+
+      try {
+        await db.collection("correos").add(correoData);
+        alert("Correo enviado con recompensa.");
+        form.reset();
+      } catch (error) {
+        console.error("Error al enviar correo:", error);
+        alert("Hubo un error al enviar el correo.");
+      }
+    });
+  </script>
+
+</body>
+</html>

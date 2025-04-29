@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentes - FPS Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1e272e; /* Fondo oscuro similar al de la imagen */
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .agentList {
+            width: 25%;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+        }
+        .agentDetails {
+            width: 75%;
+            padding: 20px;
+        }
+        .agentImage {
+            /* Espacio para la imagen del agente a la derecha */
+            float: right;
+            width: 60%; /* Ajusta según sea necesario */
+            height: 100%;
+            background-image: url(""); /* Reemplaza con la URL de la imagen del agente */
+            background-size: cover;
+            background-position: center;
+        }
+        .agentItem {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+        .agentItem img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .selectedAgent {
+            /* Estilo para el agente seleccionado */
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .agentName {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .agentSubtitle {
+            font-size: 14px;
+            color: #95a5a6;
+        }
+        .agentAbilities {
+            margin-top: 20px;
+        }
+        .ability {
+            margin-bottom: 10px;
+        }
+        .abilityTitle {
+            font-weight: bold;
+        }
+        .abilityDescription {
+            color: #95a5a6;
+        }
+        .buttons {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .buttons button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <div class="agentList">
+            <!-- Lista de agentes (puedes agregar más) -->
+            <div class="agentItem selectedAgent">
+                <img src="enemy.png" alt="Agente 1">
+                <div>
+                    <div class="agentName">D-WOLF</div>
+                    <div class="agentSubtitle">Kai Silva</div>
+                </div>
+            </div>
+            <div class="agentItem">
+                <img src="URL_IMAGEN_AGENTE_2.jpg" alt="Agente 2">
+                <div>
+                    <div class="agentName">Nombre Agente 2</div>
+                    <div class="agentSubtitle">Subtítulo Agente 2</div>
+                </div>
+            </div>
+            <!-- Agrega más agentes aquí -->
+        </div>
+        <div class="agentDetails">
+            <div class="agentImage">
+                <!-- Aquí se mostrará la imagen grande del agente -->
+                 <img src="enemy.png" alt="Agente 1">
+            </div>
+            <div class="agentAbilities">
+                <div class="ability">
+                    <div class="abilityTitle">Exoesqueleto Motorizado</div>
+                    <div class="abilityDescription">Aceleración</div>
+                </div>
+                <div class="ability">
+                    <div class="abilityTitle">Bláster Triple</div>
+                    <div class="abilityDescription">Daño</div>
+                </div>
+                <div class="ability">
+                    <div class="abilityTitle">Granada de Humo Táctica</div>
+                    <div class="abilityDescription">Cortina de humo</div>
+                </div>
+                <div class="ability">
+                    <div class="abilityTitle">Deslizamiento Táctico</div>
+                    <div class="abilityDescription">Atributo</div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button>DETALLES</button>
+                <button>MODIFICAR</button>
+                <button>EQUIPADO</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
