@@ -1,111 +1,125 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Prueba FPS</title>
   <style>
     html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: url('https://i.ibb.co/LXDD3BCK/20250424-210323606.png') no-repeat center center fixed;
-  background-size: cover;
-  color: white;
-  font-family: sans-serif;
-  touch-action: none;
-}
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: url('prueba.png') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      font-family: sans-serif;
+      touch-action: none;
+    }
 
-#crosshair {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin-top: -10px;
-  margin-left: -10px;
-  pointer-events: none;
-  z-index: 2;
-}
+    #crosshair {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin-top: -10px;
+      margin-left: -10px;
+      pointer-events: none;
+      z-index: 2;
+    }
 
-#crosshair::before, #crosshair::after {
-  content: '';
-  position: absolute;
-  background: white;
-}
+    #crosshair::before, #crosshair::after {
+      content: '';
+      position: absolute;
+      background: white;
+    }
 
-#crosshair::before {
-  left: 50%;
-  top: 0;
-  width: 2px;
-  height: 100%;
-  transform: translateX(-50%);
-}
+    #crosshair::before {
+      left: 50%;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
 
-#crosshair::after {
-  top: 50%;
-  left: 0;
-  height: 2px;
-  width: 100%;
-  transform: translateY(-50%);
-}
+    #crosshair::after {
+      top: 50%;
+      left: 0;
+      height: 2px;
+      width: 100%;
+      transform: translateY(-50%);
+    }
 
-#gun {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  width: 200px;
-  transform: translateX(-50%);
-  z-index: 1;
-}
+    #gun {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      width: 200px;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
 
-#enemy {
-  position: fixed;
-  top: 30%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-}
+    #enemy {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+    }
 
-#enemyHealth {
-  position: fixed;
-  top: 25%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 10px;
-  background: red;
-}
+    #enemyHealth {
+      position: fixed;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 10px;
+      background: red;
+    }
 
-#shootBtn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 15px 20px;
-  font-size: 16px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  z-index: 2;
-  display: none;
-}
+    #shootBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      z-index: 2;
+      display: none;
+    }
 
-#message {
-  position: fixed;
-  top: 10%;
-  width: 100%;
-  text-align: center;
-  font-size: 24px;
-  color: lime;
-  display: none;
-  z-index: 3;
-}
+    #message {
+      position: fixed;
+      top: 10%;
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      color: lime;
+      display: none;
+      z-index: 3;
+    }
 
-@media (pointer: coarse) {
-  #shootBtn {
-    display: block;
-  }
-}
+    #bullet {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: yellow;
+      border-radius: 50%;
+      display: none;
+    }
 
+    #gun.recoil {
+      transform: translateX(-50%) translateY(-5px);
+      transition: transform 0.1s ease;
+    }
+
+    @media (pointer: coarse) {
+      #shootBtn {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
@@ -114,22 +128,103 @@
   <img id="enemy" src="enemy.png">
   <img id="gun" src="arma.png">
   <button id="shootBtn">Disparar</button>
-  <div id="message">¡Prueba completada!</div>  <script>
+  <div id="message">¡Prueba completada!</div>
+  <audio id="soundDisparo" src="disparo.mp3"></audio> 
+  <div id="bullet"></div>
+  <script>
     let enemyHP = 5;
     const enemy = document.getElementById("enemy");
     const healthBar = document.getElementById("enemyHealth");
     const message = document.getElementById("message");
+    const bullet = document.getElementById("bullet");
+
+    const niveles = [
+      { enemigos: 1, vidas: 5 },
+      { enemigos: 2, vidas: 3 },
+      { enemigos: 3, vidas: 1 }
+    ];
+
+    let nivelActual = 0;
+    let vidas = niveles[nivelActual].vidas;
 
     function shoot() {
       if (enemyHP > 0) {
         enemyHP--;
         healthBar.style.width = (enemyHP * 24) + "px";
+
         if (enemyHP === 0) {
           enemy.style.display = "none";
           healthBar.style.display = "none";
           message.style.display = "block";
+
+          nivelActual++;
+          if (nivelActual < niveles.length) {
+            iniciarJuego();
+          } else {
+            message.textContent = "¡Juego Completado!";
+            window.location.href = "lobby.html";
+          }
         }
+
+        // Mostrar bala
+        bullet.style.display = "block";
+        bullet.style.left = (window.innerWidth / 2) + "px";
+        bullet.style.top = (window.innerHeight / 2) + "px";
+        bullet.style.transition = "left 0.5s ease";
+
+        // Mover bala hacia la derecha (simulación)
+        setTimeout(() => {
+          bullet.style.left = (window.innerWidth + 50) + "px";
+          setTimeout(() => {
+            bullet.style.display = "none";
+            checkCollision(); 
+          }, 500); 
+        }, 100);
+
+        // Reproducir sonido
+        const sonidoDisparo = document.getElementById("soundDisparo");
+        sonidoDisparo.play();
+
+        // Animar arma
+        const gun = document.getElementById("gun");
+        gun.classList.add("recoil");
+        setTimeout(() => {
+          gun.classList.remove("recoil");
+        }, 100);
       }
+    }
+
+    function moveEnemy() {
+      const enemy = document.getElementById("enemy");
+      const maxX = window.innerWidth - enemy.width;
+      const maxY = window.innerHeight - enemy.height;
+      enemy.style.left = Math.random() * maxX + "px";
+      enemy.style.top = Math.random() * maxY + "px";
+    }
+
+    function checkCollision() {
+      const enemy = document.getElementById("enemy");
+      const bullet = document.getElementById("bullet");
+
+      const enemyRect = enemy.getBoundingClientRect();
+      const bulletRect = bullet.getBoundingClientRect();
+
+      if (enemyRect.left < bulletRect.right &&
+          enemyRect.right > bulletRect.left &&
+          enemyRect.top < bulletRect.bottom &&
+          enemyRect.bottom > bulletRect.top) {
+        // Colisión detectada
+        enemyHP--;
+        healthBar.style.width = (enemyHP * 24) + "px";
+      }
+    }
+
+    function iniciarJuego() {
+      enemyHP = niveles[nivelActual].vidas;
+      healthBar.style.width = (enemyHP * 24) + "px";
+      enemy.style.display = "block";
+      healthBar.style.display = "block";
+      message.style.display = "none";
     }
 
     document.addEventListener("click", shoot);
@@ -146,5 +241,10 @@
       if (keys['a'] || keys['A']) window.scrollBy(-5, 0);
       if (keys['d'] || keys['D']) window.scrollBy(5, 0);
     }, 16);
-  </script></body>
+
+    setInterval(moveEnemy, 1000); 
+
+    window.onload = iniciarJuego;
+  </script>
+</body>
 </html>
