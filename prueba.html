@@ -158,12 +158,14 @@
           message.style.display = "block";
 
           nivelActual++;
-          if (nivelActual < niveles.length) {
-            iniciarJuego();
-          } else {
-            message.textContent = "¡Juego Completado!";
-            window.location.href = "lobby.html";
-          }
+if (nivelActual < niveles.length) {
+  setTimeout(iniciarJuego, 1000); // Pequeña pausa opcional
+} else {
+  message.textContent = "¡Juego Completado!";
+  setTimeout(() => {
+    window.location.href = "lobby.html";
+  }, 1500); // Esperar un momento para mostrar el mensaje antes de redirigir
+}
         }
 
         // Mostrar bala
