@@ -82,6 +82,7 @@
     function goToTutorial(user) {
       alert("Bienvenido, " + (user.displayName || "Jugador") + ". Irás al tutorial.");
       // Aquí puedes redirigir o mostrar el tutorial.
+      window.location.href = "lobby.html";
     }
 
     function saveUser(user) {
@@ -151,7 +152,7 @@
         })
         .catch(err => console.log("Error: " + err.message));
     });
-    window.location.href = "lobby.html";
+    
   </script>
 </body>
 </html>
